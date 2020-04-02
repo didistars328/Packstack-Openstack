@@ -1,0 +1,2 @@
+BOX_NAME=centos/7
+MASHINE_NAME=centos7
