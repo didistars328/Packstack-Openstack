@@ -1,0 +1,38 @@
+---
+- hosts: controller
+  gether_facts: no
+  tasks:
+    - name: Disable Firewall and NetwokManager
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: False
+      with_items:
+        - firewalld
+        - NetworkManager
+
+    - name: Set hostname
+      hostname: name={{ hostname }}
+
+    - name: Install yum packages and updates
+      yum:
+        name:
+          - vim
+          - wget
+          - curl
+          - telnet
+          - bash-completion
+          - https://www.rdoproject.org/repos/rdo-release.rpm
+          - openstack-packstack
+          - openstack-utils
+        state: latest
+
+    - name: Download Cirros image
+      get_url:
+        url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+        dest: /root/
+
+    - name: Run packstack
+      roles:
+        - "../common/run_packstack"
+

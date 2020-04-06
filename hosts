@@ -1,0 +1,2 @@
+[controller]
+{{ NAT_IP }} {{ MASHINE_NAME }}
