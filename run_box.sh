@@ -1,7 +1,9 @@
 #!/bin/bash
+
 echo "===================================="
 echo "  ----------- Load Box -----------  "
 echo "===================================="
+
 path=$(pwd)
 source "${path}/env_vars.sh"
 vagrant box list | grep $BOX_NAME
@@ -17,4 +19,3 @@ echo "===================================="
 cd all_in_one/
 vagrant up
 ansible-playbook -i hosts install_playbook.yml
-
