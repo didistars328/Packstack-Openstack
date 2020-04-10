@@ -1,0 +1,18 @@
+---
+- name: Read credentials
+  register: creds_json
+  changed_when: false
+  shell:
+    cmd: |
+      . {{credentials_file}}
+      cat <<-EOF
+      auth_url: "$OS_AUTH_URL"
+      username: "$OS_USERNAME"
+      password: "$OS_PASSWORD"
+      project_name: "$OS_PROJECT_NAME"
+      user_domain_name: "$OS_USER_DOMAIN_NAME"
+      project_domain_name: "$OS_PROJECT_DOMAIN_NAME"
+      EOF
+- name: Set credentials fact
+  set_fact:
+    "{{credentials_fact}}": "{{creds_json.stdout|from_yaml}}"

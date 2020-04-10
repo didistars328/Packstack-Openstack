@@ -1,5 +1,5 @@
-BOX_NAME='centos/7'
-MASHINE_NAME=centos7
+BOX_NAME=centos/7
+MASHINE_NAME=packstack
 NAT_IP=10.0.2.15
 INT_IP=10.1.0.10
 INT_GW=10.1.0.1

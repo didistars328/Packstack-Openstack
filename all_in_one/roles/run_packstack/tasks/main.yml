@@ -1,28 +1,29 @@
 - name: Generate anwser file
-  shell: packstack --provision-demo=n --os-neutron-ml2-type-drivers=vxlan,flat,vlan --gen-answer-file=packstack-answers.txt
+  shell: packstack --provision-demo=n --os-neutron-ml2-type-drivers=vxlan,flat,vlan --gen-answer-file=/root/packstack-answers.txt
 
 - name: Disable selinux
   lineinfile:
     path: /etc/selinux/config
-      regexp: '^SELINUX='
-      line: SELINUX=permissive
+    regexp: '^SELINUX='
+    line: SELINUX=permissive
 
 - name: Replace IP in answer file on desired for host-only network
-  lineinfile:
+  replace:
     path: /root/packstack-answers.txt
-      regexp: '{{ NAT_IP }}'
-      line: '{{ INT_IP }}'
+    regexp: '{{ nat_ip }}'
+    replace: '{{ int_ip }}'
 
 - name: Add interface for Nova and Compute
   blockinfile:
     path: /root/packstack-answers.txt
+    marker: ""
     block: |
       CONFIG_NOVA_COMPUTE_PRIVIF=eth0
       CONFIG_NOVA_NETWORK_PUBIF=eth1
       CONFIG_NOVA_NETWORK_PRIVIF=eth0
 
-- name: Run packstack with updated answer file
-  shell: packstack --answer-file=packstack-answers.txt
+- name: Run packstack with updated answer file ( PLS wait it will take some time )
+  shell: packstack --answer-file=/root/packstack-answers.txt
 
 - name: Copy interaces templates
   template:
@@ -31,18 +32,3 @@
   with_items:
     - {src: 'ifcfg-br-ex.j2',dest: '/etc/sysconfig/network-scripts/ifcfg-br-ex'}
     - {src: 'ifcfg-eth1.j2',dest: '/etc/sysconfig/network-scripts/ifcfg-eth1'}
-
-- name: Stop Network
-  service:
-    name: network
-    state: stopped
-
-- name: Stop and run copied interfaces
-  shell: |
-    ifdown eth1 && ifdown br-ex
-    ifup br-ex && ifup eth1
-
-- name: Start Network
-  service:
-    name: network
-    state: started

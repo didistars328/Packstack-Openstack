@@ -1,6 +1,15 @@
 ---
-- hosts: controller
-  gether_facts: no
+
+- name: Store known hosts
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - ssh_key_gen
+
+- name: Start installation
+  hosts: controller
+  gather_facts: false
+  become: yes
   tasks:
     - name: Disable Firewall and NetwokManager
       service:
@@ -11,28 +20,69 @@
         - firewalld
         - NetworkManager
 
-    - name: Set hostname
-      hostname: name={{ hostname }}
-
-    - name: Install yum packages and updates
+    - name: Install requirements
       yum:
         name:
-          - vim
+          - https://www.rdoproject.org/repos/rdo-release.rpm
           - wget
           - curl
-          - telnet
-          - bash-completion
-          - https://www.rdoproject.org/repos/rdo-release.rpm
+        state: latest
+
+    - name: Update box
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Packstack packages
+      yum:
+        name:
           - openstack-packstack
           - openstack-utils
-        state: latest
+        state: present
 
     - name: Download Cirros image
       get_url:
         url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
         dest: /root/
 
-    - name: Run packstack
-      roles:
-        - "../common/run_packstack"
+- name: Run packstack
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - run_packstack
 
+- name: Apply settings
+  hosts: controller
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: Restart Box
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+#    - name: Restart Box
+#      shell: "sleep 5 && reboot"
+#      async: 10
+#      poll: 0
+#
+#    - name: Wait for the reboot and reconnect
+#      wait_for:
+#        port: 2222
+#        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+#        search_regex: OpenSSH
+#        delay: 10
+#        timeout: 300
+#      connection: local
+
+- name: Configure Packstack
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - { role: osclient, credentials_file: /root/keystonerc_admin, credentials_fact: admin_creds }
+    - { role: configure_packstack }

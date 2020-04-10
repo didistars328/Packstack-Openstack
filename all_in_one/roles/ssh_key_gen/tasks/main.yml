@@ -1,0 +1,5 @@
+- name: Remove preious host
+  shell: "ssh-keygen -f {{ lookup('env','HOME') + '/.ssh/known_hosts' }} -R [{{ ansible_host }}]:2222"
+
+- name: Scan for its ssh public key and put it to the known_hosts
+  shell: "ssh-keyscan -t rsa,dsa -p 2222 {{ ansible_host }} >> {{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
