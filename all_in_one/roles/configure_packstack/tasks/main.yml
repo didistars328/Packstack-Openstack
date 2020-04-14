@@ -1,7 +1,7 @@
 ---
 - name: Create an external netwok
   os_network:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     name: external_network
     external: true
@@ -10,13 +10,13 @@
 
 - name: Create a private netwok
   os_network:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     name: private_network
 
 - name: Create an external subnet
   os_subnet:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     network_name: external_network
     name: external_subnet
@@ -27,7 +27,7 @@
 
 - name: Create a private subnet
   os_subnet:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     network_name: private_network
     name: private_subnet
@@ -35,7 +35,7 @@
 
 - name: Create a router
   os_router:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     name: router1
     network: external_network
@@ -47,27 +47,27 @@
 
 - name: Upload ssh key to nova
   os_keypair:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     name: mykey
     public_key_file: /root/.ssh/id_rsa.pub
 
 - name: Create a security group
   os_security_group:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     state: present
     name: allow_ssh_http
     description: Define ssh connection and http to everyone
 
 - name: Allow icmp traffic
   os_security_group_rule:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     protocol: icmp
     security_group: allow_ssh_http
 
 - name: Allow ssh traffic
   os_security_group_rule:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     protocol: tcp
     port_range_min: "{{ item }}"
     port_range_max: "{{ item }}"
@@ -79,7 +79,7 @@
 
 - name: create m1.nano flavor
   os_nova_flavor:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     name: m1.nano
     ram: 64
     disk: 1
@@ -88,25 +88,9 @@
 
 - name: Upload cirros image to glance
   os_image:
-    auth: "{{admin_creds}}"
+    cloud: mycloud
     name: cirros
     container_format: bare
     disk_format: qcow2
     is_public: yes
     filename: /root/cirros-0.3.4-x86_64-disk.img
-
-- name: Start a cirros instance
-  os_server:
-    auth: "{{admin_creds}}"
-    flavor: m1.nano
-    image: cirros
-    key: mykey
-    name: instance01
-    security_groups: allow_ssh_http
-    nics:
-      - net-name: private_network
-
-- name: Create and assign a floating IP to the instance
-  os_floating_ip:
-    auth: "{{admin_creds}}"
-    server: instance01

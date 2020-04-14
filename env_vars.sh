@@ -5,3 +5,9 @@ INT_IP=10.1.0.10
 INT_GW=10.1.0.1
 DNS_ADDR=8.8.8.8
 NET_CIDR=255.255.255.0
+
+# Cloud Settings
+
+CLOUD_NAME=mycloud
+OPENSTACK_USER=admin
+OPENSTACK_USER_PASSWD=dragonrising

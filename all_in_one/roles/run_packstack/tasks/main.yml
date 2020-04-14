@@ -13,6 +13,17 @@
     regexp: '{{ nat_ip }}'
     replace: '{{ int_ip }}'
 
+- name: Replace Username, Password and Project
+  lineinfile:
+    path: /root/packstack-answers.txt
+    regexp: '{{ item.From }}'
+    line: '{{ item.To }}'
+    state: present
+  with_items:
+    - { From: CONFIG_KEYSTONE_ADMIN_USERNAME=, To: "CONFIG_KEYSTONE_ADMIN_USERNAME={{ lookup('env','OPENSTACK_USER') }}" }
+    - { From: CONFIG_KEYSTONE_ADMIN_PW=, To: "CONFIG_KEYSTONE_ADMIN_PW={{ lookup('env','OPENSTACK_USER_PASSWD') }}" }
+
+
 - name: Add interface for Nova and Compute
   blockinfile:
     path: /root/packstack-answers.txt

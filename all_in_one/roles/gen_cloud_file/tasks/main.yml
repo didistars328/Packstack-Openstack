@@ -1,0 +1,18 @@
+---
+- name: Create opentsack temp folder
+  file:
+    path: /etc/openstack/
+    state: directory
+    mode: '0755'
+  register: openstack_dir
+
+- debug: msg="{{ openstack_dir.path }}"
+
+- name: Adding clouds.yaml for os-client-config for further actions
+  template:
+    src: clouds.yml.j2
+    dest: "{{ openstack_dir.path }}/clouds.yml"
+
+
+
+

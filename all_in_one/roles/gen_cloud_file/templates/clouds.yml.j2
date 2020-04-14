@@ -1,0 +1,10 @@
+clouds:
+  {{ lookup('env','CLOUD_NAME') }}:
+    auth:
+      username: {{ lookup('env','OPENSTACK_USER') }}
+      project_name: {{ lookup('env','OPENSTACK_USER') }}
+      password: {{ lookup('env','OPENSTACK_USER_PASSWD') }}
+      auth_url: http://{{ lookup('env','INT_IP') }}:5000/v3/
+      user_domain_name: default
+      project_domain_name: default
+    identity_api_version: 3
