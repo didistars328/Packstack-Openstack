@@ -94,3 +94,26 @@
     disk_format: qcow2
     is_public: yes
     filename: /root/cirros-0.3.4-x86_64-disk.img
+
+- name: Start a cirros instance
+  os_server:
+    cloud: mycloud
+    flavor: m1.nano
+    image: cirros
+    key_name: mykey
+    name: instance01
+    security_groups: allow_ssh_http
+    nics:
+      - net-name: private_network
+
+- name: Create and assign a floating IP to the instance
+  os_floating_ip:
+    cloud: mycloud
+    server: instance01
+
+- name: Make an instance autostart after reboot
+  lineinfile:
+    path: /etc/nova/nova.conf
+    regexp: "resume_guests_state_on_host_boot"
+    line: "resume_guests_state_on_host_boot=true"
+    state: present

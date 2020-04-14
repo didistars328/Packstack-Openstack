@@ -1,0 +1,52 @@
+---
+- name: Store known hosts
+  hosts: controller
+  gather_facts: false
+  roles:
+    - common/ssh_key_gen
+
+- name: Start installation
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - prepare
+
+- name: Run packstack
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - run_packstack
+
+- name: Configure cloud module
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - gen_cloud_file
+
+- name: Configure Openstack
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - configure_packstack
+
+- name: Apply settings
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Restart Box
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 10
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 20
+        test_command: whoami
+      become: true
+
+    - name: Waiting for server to come back
+      wait_for: host="{{ ansible_host }}" port=2222 state=started delay=10 timeout=60
+      delegate_to: localhost

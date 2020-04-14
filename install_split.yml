@@ -1,0 +1,6 @@
+---
+- name: Store known hosts
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - ssh_key_gen

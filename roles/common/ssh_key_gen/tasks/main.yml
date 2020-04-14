@@ -1,0 +1,7 @@
+- name: Remove preious host
+  shell: "ssh-keygen -f {{ lookup('env','HOME') + '/.ssh/known_hosts' }} -R [{{ ansible_host }}]:{{ ansible_port }}"
+  delegate_to: localhost
+
+- name: Scan for its ssh public key
+  shell: "ssh-keyscan -t rsa,dsa -p {{ ansible_port }} {{ ansible_host }} >> {{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
+  delegate_to: localhost

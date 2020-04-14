@@ -1,0 +1,36 @@
+- name: Update hosts file
+  shell: echo '127.0.0.1 {{ inventory_hostname }}' >> /etc/hosts
+
+- name: Disable Firewall and NetwokManager
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: False
+  with_items:
+    - firewalld
+    - NetworkManager
+
+- name: Install requirements
+  yum:
+    name:
+      - wget
+      - curl
+      - https://www.rdoproject.org/repos/rdo-release.rpm
+    state: latest
+
+- name: Update box
+  yum:
+    name: "*"
+    state: latest
+
+- name: Install Packstack packages
+  yum:
+    name:
+      - openstack-packstack
+      - openstack-utils
+    state: present
+
+- name: Download Cirros image
+  get_url:
+    url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+    dest: /root/

@@ -8,22 +8,45 @@ map = {
 }
 
 Vagrant.configure(2) do |config|
-  config.vm.box = ENV['BOX_NAME']
-  config.vm.base_address
-
-  config.vm.define vm_name do |c|
-    c.vm.host_name = ENV['CONTROLLER']
-    c.vm.base_address = ENV['NAT_IP']
-
-    c.vm.network 'private_network', ip: ENV['INT_IP'] # eth1
+  config.vm.define ENV['CONTROLLER'] do |controller|
+    controller.vm.box = ENV['BOX_NAME']
+    controller.vm.host_name = ENV['CONTROLLER']
+    controller.vm.base_address = ENV['CONTROLLER_NAT_IP']                    # eth0.100
+    controller.vm.network 'private_network', ip: ENV['CONTROLLER_INT_IP']    # eth0
+    controller.vm.network "private_network", ip: ENV['CONTROLLER_TENANT_IP'] # eth0.200
+    controller.vm.network :forwarded_port, guest: 22, host: 2222
+        controller.vm.provider 'virtualbox' do |v|
+      v.customize ['modifyvm', :id, '--cpus', map['cpu']]
+      v.customize ['modifyvm', :id, '--memory', map['memory']]
+      v.customize ["modifyvm", :id, "--nicpromisc2", map['promiscuous']]
+      v.customize ["modifyvm", :id, "--nicpromisc3", map['promiscuous']]
+    end
   end
 
-  config.vm.provider 'virtualbox' do |v|
-    v.customize ['modifyvm', :id, '--cpus', map['cpu']]
-    v.customize ['modifyvm', :id, '--memory', map['memory']]
-    v.customize ["modifyvm", :id, "--nicpromisc2", map['memory']]
+  config.vm.define ENV['COMPUTE1'] do |compute1|
+    compute1.vm.box = ENV['BOX_NAME']
+    compute1.vm.host_name = ENV['COMPUTE1']
+    compute1.vm.base_address = ENV['COMPUTE1_NAT_IP']                      # eth0
+    compute1.vm.network 'private_network', ip: ENV['COMPUTE1_TENANT_IP']   # eth0.200
+    compute1.vm.network :forwarded_port, guest: 22, host: 2223
+    compute1.vm.provider 'virtualbox' do |v|
+      v.customize ['modifyvm', :id, '--cpus', map['cpu']]
+      v.customize ['modifyvm', :id, '--memory', map['memory']]
+      v.customize ["modifyvm", :id, "--nicpromisc2", map['promiscuous']]
+    end
   end
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.define ENV['COMPUTE2'] do |compute2|
+    compute2.vm.box = ENV['BOX_NAME']
+    compute2.vm.host_name = ENV['COMPUTE2']
+    compute2.vm.base_address = ENV['COMPUTE2_NAT_IP']                      # eth0
+    compute2.vm.network 'private_network', ip: ENV['COMPUTE2_TENANT_IP']   # eth0.200
+    compute2.vm.network :forwarded_port, guest: 22, host: 2224
+    compute2.vm.provider 'virtualbox' do |v|
+      v.customize ['modifyvm', :id, '--cpus', map['cpu']]
+      v.customize ['modifyvm', :id, '--memory', map['memory']]
+      v.customize ["modifyvm", :id, "--nicpromisc2", map['promiscuous']]
+    end
+  end
 
 end
