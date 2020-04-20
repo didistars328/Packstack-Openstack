@@ -3,7 +3,7 @@
 
 map = {
     'cpu' => '1',
-    'memory' => '2048',
+    'memory' => '1024',
     'promiscuous' => 'allow-all',
 }
 
@@ -11,9 +11,9 @@ Vagrant.configure(2) do |config|
   config.vm.define ENV['CONTROLLER'] do |controller|
     controller.vm.box = ENV['BOX_NAME']
     controller.vm.host_name = ENV['CONTROLLER']
-    controller.vm.base_address = ENV['CONTROLLER_NAT_IP']                    # eth0.100
-    controller.vm.network 'private_network', ip: ENV['CONTROLLER_INT_IP']    # eth0
-    controller.vm.network "private_network", ip: ENV['CONTROLLER_TENANT_IP'] # eth0.200
+    controller.vm.base_address = ENV['CONTROLLER_NAT_IP']                    # eth0.100 - provider network - eth0
+    controller.vm.network 'private_network', ip: ENV['CONTROLLER_INT_IP']    # eth0  -  management network - eth1
+    controller.vm.network "private_network", ip: ENV['CONTROLLER_TENANT_IP'] # eth0.200 - tenant network - eth2
     controller.vm.network :forwarded_port, guest: 22, host: 2222
         controller.vm.provider 'virtualbox' do |v|
       v.customize ['modifyvm', :id, '--cpus', map['cpu']]
@@ -26,8 +26,9 @@ Vagrant.configure(2) do |config|
   config.vm.define ENV['COMPUTE1'] do |compute1|
     compute1.vm.box = ENV['BOX_NAME']
     compute1.vm.host_name = ENV['COMPUTE1']
-    compute1.vm.base_address = ENV['COMPUTE1_NAT_IP']                      # eth0
-    compute1.vm.network 'private_network', ip: ENV['COMPUTE1_TENANT_IP']   # eth0.200
+    compute1.vm.base_address = ENV['COMPUTE1_NAT_IP']                        # eth0.100 - provider network - eth0
+    compute1.vm.network 'private_network', ip: ENV['COMPUTE1_INT_IP']        # eth0  -  management network - eth1
+    compute1.vm.network "private_network", ip: ENV['COMPUTE1_TENANT_IP']     # eth0.200 - tenant network - eth2
     compute1.vm.network :forwarded_port, guest: 22, host: 2223
     compute1.vm.provider 'virtualbox' do |v|
       v.customize ['modifyvm', :id, '--cpus', map['cpu']]
@@ -39,8 +40,9 @@ Vagrant.configure(2) do |config|
   config.vm.define ENV['COMPUTE2'] do |compute2|
     compute2.vm.box = ENV['BOX_NAME']
     compute2.vm.host_name = ENV['COMPUTE2']
-    compute2.vm.base_address = ENV['COMPUTE2_NAT_IP']                      # eth0
-    compute2.vm.network 'private_network', ip: ENV['COMPUTE2_TENANT_IP']   # eth0.200
+    compute2.vm.base_address = ENV['COMPUTE2_NAT_IP']                        # eth0.100 - provider network - eth0
+    compute2.vm.network 'private_network', ip: ENV['COMPUTE2_INT_IP']        # eth0  -  management network - eth1
+    compute2.vm.network "private_network", ip: ENV['COMPUTE2_TENANT_IP']     # eth0.200 - tenant network - eth2
     compute2.vm.network :forwarded_port, guest: 22, host: 2224
     compute2.vm.provider 'virtualbox' do |v|
       v.customize ['modifyvm', :id, '--cpus', map['cpu']]

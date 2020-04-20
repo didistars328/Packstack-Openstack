@@ -1,6 +1,20 @@
 ---
 - name: Store known hosts
-  hosts: localhost
+  hosts: controller:compute
   gather_facts: false
   roles:
-    - ssh_key_gen
+    - common/ssh_key_gen
+
+- name: Prepare installation
+  hosts: controller:compute
+  gather_facts: false
+  become: yes
+  roles:
+    - common/prepare
+
+- name: Run packstack
+  hosts: controller
+  gather_facts: false
+  become: yes
+  roles:
+    - gen_file

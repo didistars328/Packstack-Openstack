@@ -1,5 +1,1 @@
-int_ip: 10.1.0.10
-int_gw: 10.1.0.1
-netmask: 255.255.255.0
-dns_addr: 8.8.8.8
-nat_ip: 10.0.2.15
+float_range: 10.1.0.128/25

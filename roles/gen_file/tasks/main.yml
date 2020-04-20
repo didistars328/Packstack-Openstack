@@ -1,0 +1,39 @@
+---
+- name: Generate anwser file
+  shell: packstack --gen-answer-file=/root/packstack-answers.txt
+
+- name: Replace controller, network, amqp, mariadb hosts
+  lineinfile:
+    path: /root/packstack-answers.txt
+    regexp: '{{ item.From }}'
+    line: '{{ item.To }}'
+    state: present
+  with_items:
+    - { From: CONFIG_CONTROLLER_HOST=, To: "CONFIG_CONTROLLER_HOST={{ lookup('env','CONTROLLER_INT_IP') }}" }
+    - { From: CONFIG_NETWORK_HOSTS=, To: "CONFIG_NETWORK_HOSTS={{ lookup('env','CONTROLLER_INT_IP') }}" }
+    - { From: CONFIG_AMQP_HOSTS=, To: "CONFIG_AMQP_HOSTS={{ lookup('env','CONTROLLER_INT_IP') }}" }
+    - { From: CONFIG_MARIADB_HOST=, To: "CONFIG_MARIADB_HOST={{ lookup('env','CONTROLLER_INT_IP') }}" }
+
+- name: Replace compute hosts
+  lineinfile:
+    path: /root/packstack-answers.txt
+    regexp: '{{ item.From }}'
+    line: '{{ item.To }}'
+    state: present
+  with_items:
+    - { From: CONFIG_COMPUTE_HOST=, To: "CONFIG_COMPUTE_HOST={{ lookup('env','COMPUTE1_INT_IP') }},{{ lookup('env','COMPUTE2_INT_IP') }}" }
+
+- name: Replace bridge interfaces and floating IP
+  lineinfile:
+    path: /root/packstack-answers.txt
+    regexp: '{{ item.From }}'
+    line: '{{ item.To }}'
+    state: present
+  with_items:
+    - { From: CONFIG_NEUTRON_OVS_BRIDGE_MAPPINGS=, To: "CONFIG_NEUTRON_OVS_BRIDGE_MAPPINGS=vlan100:br-vlan100" }
+    - { From: CONFIG_NEUTRON_OVS_BRIDGE_IFACES=, To: "CONFIG_NEUTRON_OVS_BRIDGE_IFACES=br-vlan100:eth0" }
+    - { From: CONFIG_NEUTRON_OVS_TUNNEL_IF=, To: "CONFIG_NEUTRON_OVS_TUNNEL_IF=eth2" }
+    - { From: CONFIG_PROVISION_DEMO_FLOATRANGE=, To: "CONFIG_PROVISION_DEMO_FLOATRANGE={{ float_range }}" }
+
+- name: Read answers file and install packstack ( PLS wait it will take some time )
+  shell: packstack --answer-file=/root/packstack-answers.txt

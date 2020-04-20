@@ -17,6 +17,7 @@
       - curl
       - https://www.rdoproject.org/repos/rdo-release.rpm
     state: latest
+  when: inventory_hostname in groups['controller']
 
 - name: Update box
   yum:
@@ -29,8 +30,10 @@
       - openstack-packstack
       - openstack-utils
     state: present
+  when: inventory_hostname in groups['controller']
 
 - name: Download Cirros image
   get_url:
     url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
     dest: /root/
+  when: inventory_hostname in groups['controller']

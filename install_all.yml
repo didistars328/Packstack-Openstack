@@ -5,12 +5,12 @@
   roles:
     - common/ssh_key_gen
 
-- name: Start installation
+- name: Prepare installation
   hosts: controller
   gather_facts: false
   become: yes
   roles:
-    - prepare
+    - common/prepare
 
 - name: Run packstack
   hosts: controller
